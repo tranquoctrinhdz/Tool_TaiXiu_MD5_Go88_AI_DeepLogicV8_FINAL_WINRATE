@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tool Tài Xỉu MD5 Go88 - DeepLogic V8 FINAL (Smart)</title>
+  <style>
+    body { background: #000; color: #FFD700; font-family: 'Arial Black', sans-serif; padding: 20px; text-align: center; }
+    h1 { font-size: 28px; color: #00FFCC; text-shadow: 0 0 8px #FFD700; }
+    .box { background: #111; border: 2px solid #FFD700; border-radius: 10px; padding: 20px; max-width: 820px; margin: auto; box-shadow: 0 0 15px #ffaa00; }
+    button { margin: 8px; padding: 12px 24px; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    .tai { background: #00ffcc; color: #000; }
+    .xiu { background: #ff6699; color: #000; }
+    .reset { background: #999; color: #fff; }
+    select, input { padding: 10px; margin-top: 10px; font-size: 16px; border-radius: 6px; width: 80%; }
+    .result, .recommend, .trend, .history, .log { margin-top: 20px; font-size: 18px; }
+    .highlight { font-size: 26px; color: #00ff99; text-shadow: 0 0 10px #00ffcc; font-weight: bold; }
+    footer { margin-top: 30px; font-size: 14px; color: #888; }
+  </style>
+</head>
+<body>
+  <h1>🧠 DeepLogic V8 FINAL – Chọn Mẫu Theo Tỷ Lệ Thắng</h1>
+  <div class="box">
+    <button class="tai" onclick="add('Tài')">➕ Tài</button>
+    <button class="xiu" onclick="add('Xỉu')">➕ Xỉu</button>
+    <button class="reset" onclick="undo()">↩️ Xoá</button>
+    <button class="reset" onclick="resetAll()">🗑️ Reset</button>
+    <div class="history" id="history">Đã nhập: (0)</div>
+
+    <p><strong>Vốn hiện tại (VNĐ):</strong></p>
+    <input type="number" id="capitalInput" placeholder="VD: 100000" />
+
+    <br/><br/>
+    <button onclick="analyze()" class="tai">📊 Dự Đoán</button>
+    <div class="trend" id="trend"></div>
+    <div class="result" id="result"></div>
+    <div class="recommend" id="recommend"></div>
+    <div class="log" id="logResult">📈 Log đúng/sai: 0/0 (0%)</div>
+  </div>
+  <footer>Cre by Trần Quốc Trịnh – V8 FINAL Smart Logic Winrate</footer>
+
+<script>
+let history = [], correct = 0, total = 0;
+
+function add(val) {
+  if (history.length >= 21) return alert("⚠️ Đã đủ 21 kết quả!");
+  history.push(val); showHistory();
+}
+
+function undo() { history.pop(); showHistory(); }
+function resetAll() {
+  history = []; showHistory();
+  document.getElementById("result").innerText = "";
+  document.getElementById("recommend").innerText = "";
+  document.getElementById("trend").innerText = "";
+}
+
+function showHistory() {
+  document.getElementById("history").innerHTML = "Đã nhập: (" + history.length + ") → " + history.join(" ");
+}
+
+function analyze() {
+  const capital = parseInt(document.getElementById("capitalInput").value.trim());
+  if (history.length < 7 || isNaN(capital)) {
+    document.getElementById("result").innerText = "⚠️ Nhập đủ kết quả + vốn!";
+    return;
+  }
+  const seq = history.slice(-7);
+  const pattern = detectPattern(seq);
+  document.getElementById("trend").innerText = "📈 Mẫu cầu: " + pattern.trend;
+  document.getElementById("result").innerHTML = `🔮 Dự đoán: <span class="highlight">${pattern.predict}</span> (${pattern.confidence}%)`;
+
+  if (pattern.confidence >= 85) {
+    const money = pattern.confidence >= 90 ? Math.floor(capital * 0.3) : Math.floor(capital * 0.2);
+    document.getElementById("recommend").innerText = "💰 Gợi ý vào: " + money + " VNĐ";
+  } else {
+    document.getElementById("recommend").innerText = "🚫 KHÔNG NÊN VÀO TIỀN";
+  }
+
+  const expected = pattern.predict;
+  const actual = history[history.length - 1];
+  if (expected === actual) correct++;
+  total++;
+  const winrate = Math.round((correct / total) * 100);
+  document.getElementById("logResult").innerText = `📈 Log đúng/sai: ${correct}/${total} (${winrate}%)`;
+
+  history.shift(); showHistory();
+}
+
+
+function detectPattern(seq) {
+  const patterns = [
+    {{ name: "Bệt Tài 3", cond: () => seq.slice(-3).every(x => x === "Tài"), predict: "Xỉu", score: 92 }},
+    {{ name: "Bệt Xỉu 3", cond: () => seq.slice(-3).every(x => x === "Xỉu"), predict: "Tài", score: 92 }},
+    {{ name: "Bệt Tài 4", cond: () => seq.slice(-4).every(x => x === "Tài"), predict: "Xỉu", score: 94 }},
+    {{ name: "Bệt Xỉu 4", cond: () => seq.slice(-4).every(x => x === "Xỉu"), predict: "Tài", score: 94 }},
+    {{ name: "2-1", cond: () => seq.slice(-3).join("-") === "Tài-Tài-Xỉu" || seq.slice(-3).join("-") === "Xỉu-Xỉu-Tài", predict: (seq[seq.length-1] === "Tài" ? "Xỉu" : "Tài"), score: 90 }},
+    {{ name: "1-1-2", cond: () => seq.slice(-4).join("-") === "Tài-Xỉu-Tài-Tài" || seq.slice(-4).join("-") === "Xỉu-Tài-Xỉu-Xỉu", predict: (seq[seq.length-1] === "Tài" ? "Xỉu" : "Tài"), score: 91 }},
+    {{ name: "1-1 đều", cond: () => seq.slice(-5).join("-") === "Tài-Xỉu-Tài-Xỉu-Tài" || seq.slice(-5).join("-") === "Xỉu-Tài-Xỉu-Tài-Xỉu", predict: (seq[seq.length-1] === "Tài" ? "Xỉu" : "Tài"), score: 88 }}
+  ];
+
+  let best = {{ name: "Không rõ cầu", predict: "⚠️ KHÔNG ĐOÁN", score: 0 }};
+  for (let i = 0; i < patterns.length; i++) {{
+    const p = patterns[i];
+    if (p.cond()) {{
+      if (p.score > best.score) best = p;
+    }}
+  }}
+  return {{ trend: best.name, predict: best.predict, confidence: best.score }};
+}
+
+</script>
+</body>
+</html>
